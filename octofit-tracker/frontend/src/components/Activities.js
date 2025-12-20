@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { fetchWithErrorHandling } from '../utils/api';
 
 const Activities = () => {
   const [activities, setActivities] = useState([]);
@@ -10,13 +11,7 @@ const Activities = () => {
     setLoading(true);
     setError(null);
     console.log('Activities API endpoint:', endpoint);
-    fetch(endpoint)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Failed to fetch activities: ${res.status} ${res.statusText}`);
-        }
-        return res.json();
-      })
+    fetchWithErrorHandling(endpoint, 'activities')
       .then(data => {
         const results = data.results || data;
         setActivities(results);

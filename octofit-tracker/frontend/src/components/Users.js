@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { fetchWithErrorHandling } from '../utils/api';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -10,13 +11,7 @@ const Users = () => {
     setLoading(true);
     setError(null);
     console.log('Users API endpoint:', endpoint);
-    fetch(endpoint)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Failed to fetch users: ${res.status} ${res.statusText}`);
-        }
-        return res.json();
-      })
+    fetchWithErrorHandling(endpoint, 'users')
       .then(data => {
         const results = data.results || data;
         setUsers(results);

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { fetchWithErrorHandling } from '../utils/api';
 
 const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
@@ -10,13 +11,7 @@ const Leaderboard = () => {
     setLoading(true);
     setError(null);
     console.log('Leaderboard API endpoint:', endpoint);
-    fetch(endpoint)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Failed to fetch leaderboard: ${res.status} ${res.statusText}`);
-        }
-        return res.json();
-      })
+    fetchWithErrorHandling(endpoint, 'leaderboard')
       .then(data => {
         const results = data.results || data;
         setLeaderboard(results);

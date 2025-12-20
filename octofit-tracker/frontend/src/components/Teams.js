@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { fetchWithErrorHandling } from '../utils/api';
 
 const Teams = () => {
   const [teams, setTeams] = useState([]);
@@ -10,13 +11,7 @@ const Teams = () => {
     setLoading(true);
     setError(null);
     console.log('Teams API endpoint:', endpoint);
-    fetch(endpoint)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error(`Failed to fetch teams: ${res.status} ${res.statusText}`);
-        }
-        return res.json();
-      })
+    fetchWithErrorHandling(endpoint, 'teams')
       .then(data => {
         const results = data.results || data;
         setTeams(results);
