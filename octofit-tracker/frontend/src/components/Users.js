@@ -3,13 +3,20 @@ import React, { useEffect, useState, useCallback } from 'react';
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const endpoint = `https://${process.env.REACT_APP_CODESPACE_NAME}-8000.app.github.dev/api/users/`;
 
   const fetchData = useCallback(() => {
     setLoading(true);
+    setError(null);
     console.log('Users API endpoint:', endpoint);
     fetch(endpoint)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch users: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
+      })
       .then(data => {
         const results = data.results || data;
         setUsers(results);
@@ -17,6 +24,7 @@ const Users = () => {
       })
       .catch(err => {
         console.error('Error fetching users:', err);
+        setError(err.message || 'An error occurred while fetching users. Please try again.');
       })
       .finally(() => setLoading(false));
   }, [endpoint]);
@@ -33,6 +41,11 @@ const Users = () => {
           {loading ? 'Loading...' : 'Refresh'}
         </button>
       </div>
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
       <div className="table-wrapper">
         <table className="table table-striped table-bordered align-middle">
           <thead className="table-light">
