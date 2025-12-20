@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { fetchWithErrorHandling } from '../utils/api';
 
 const Activities = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const endpoint = `https://${process.env.REACT_APP_CODESPACE_NAME}-8000.app.github.dev/api/activities/`;
 
   const fetchData = useCallback(() => {
     setLoading(true);
+    setError(null);
     console.log('Activities API endpoint:', endpoint);
-    fetch(endpoint)
-      .then(res => res.json())
+    fetchWithErrorHandling(endpoint, 'activities')
       .then(data => {
         const results = data.results || data;
         setActivities(results);
@@ -17,6 +19,7 @@ const Activities = () => {
       })
       .catch(err => {
         console.error('Error fetching activities:', err);
+        setError(err.message || 'Failed to load activities. Please try again.');
       })
       .finally(() => setLoading(false));
   }, [endpoint]);
@@ -33,6 +36,11 @@ const Activities = () => {
           {loading ? 'Loading...' : 'Refresh'}
         </button>
       </div>
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
       <div className="table-wrapper">
         <table className="table table-striped table-bordered align-middle">
           <thead className="table-light">

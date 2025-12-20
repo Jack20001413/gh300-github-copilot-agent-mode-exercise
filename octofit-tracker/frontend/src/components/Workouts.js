@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { fetchWithErrorHandling } from '../utils/api';
 
 const Workouts = () => {
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const endpoint = `https://${process.env.REACT_APP_CODESPACE_NAME}-8000.app.github.dev/api/workouts/`;
 
   const fetchData = useCallback(() => {
     setLoading(true);
+    setError(null);
     console.log('Workouts API endpoint:', endpoint);
-    fetch(endpoint)
-      .then(res => res.json())
+    fetchWithErrorHandling(endpoint, 'workouts')
       .then(data => {
         const results = data.results || data;
         setWorkouts(results);
@@ -17,6 +19,7 @@ const Workouts = () => {
       })
       .catch(err => {
         console.error('Error fetching workouts:', err);
+        setError(err.message || 'Failed to load workouts. Please try again.');
       })
       .finally(() => setLoading(false));
   }, [endpoint]);
@@ -33,6 +36,11 @@ const Workouts = () => {
           {loading ? 'Loading...' : 'Refresh'}
         </button>
       </div>
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
       <div className="table-wrapper">
         <table className="table table-striped table-bordered align-middle">
           <thead className="table-light">

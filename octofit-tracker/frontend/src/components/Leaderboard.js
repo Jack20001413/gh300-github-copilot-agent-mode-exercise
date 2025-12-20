@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { fetchWithErrorHandling } from '../utils/api';
 
 const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const endpoint = `https://${process.env.REACT_APP_CODESPACE_NAME}-8000.app.github.dev/api/leaderboard/`;
 
   const fetchData = useCallback(() => {
     setLoading(true);
+    setError(null);
     console.log('Leaderboard API endpoint:', endpoint);
-    fetch(endpoint)
-      .then(res => res.json())
+    fetchWithErrorHandling(endpoint, 'leaderboard')
       .then(data => {
         const results = data.results || data;
         setLeaderboard(results);
@@ -17,6 +19,7 @@ const Leaderboard = () => {
       })
       .catch(err => {
         console.error('Error fetching leaderboard:', err);
+        setError(err.message || 'Failed to load leaderboard. Please try again.');
       })
       .finally(() => setLoading(false));
   }, [endpoint]);
@@ -33,6 +36,11 @@ const Leaderboard = () => {
           {loading ? 'Loading...' : 'Refresh'}
         </button>
       </div>
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
       <div className="table-wrapper">
         <table className="table table-striped table-bordered align-middle">
           <thead className="table-light">
