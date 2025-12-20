@@ -3,13 +3,20 @@ import React, { useEffect, useState, useCallback } from 'react';
 const Teams = () => {
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const endpoint = `https://${process.env.REACT_APP_CODESPACE_NAME}-8000.app.github.dev/api/teams/`;
 
   const fetchData = useCallback(() => {
     setLoading(true);
+    setError(null);
     console.log('Teams API endpoint:', endpoint);
     fetch(endpoint)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch teams: ${res.status} ${res.statusText}`);
+        }
+        return res.json();
+      })
       .then(data => {
         const results = data.results || data;
         setTeams(results);
@@ -17,6 +24,7 @@ const Teams = () => {
       })
       .catch(err => {
         console.error('Error fetching teams:', err);
+        setError(err.message || 'Failed to load teams. Please try again.');
       })
       .finally(() => setLoading(false));
   }, [endpoint]);
@@ -33,6 +41,11 @@ const Teams = () => {
           {loading ? 'Loading...' : 'Refresh'}
         </button>
       </div>
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
       <div className="table-wrapper">
         <table className="table table-striped table-bordered align-middle">
           <thead className="table-light">
